@@ -4,8 +4,10 @@ import * as THREE from 'three';
 import useStore from '../../store';
 
 // AI Visualization component using Three.js
-const AIVisualization = ({ activeTab }) => {
-  const { processingStage } = useStore();
+const AIVisualization = ({ activeTab, stage }) => {
+  // Use provided stage or get from store
+  const { processingStage: storeStage } = useStore();
+  const processingStage = stage || storeStage;
   
   // Create refs for the objects we'll animate
   const groupRef = useRef();

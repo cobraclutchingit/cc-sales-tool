@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:api": "node tests/api-quick-test.js",
+    "test:llm": "node tests/llm-service-test.js",
+    "test:content": "node tests/multi-llm-test.js",
+    "setup:llm": "./setup-llm.sh",
+    "update:models": "node tests/openai-models-list.js",
+    "select:model": "node tests/model-selector.js"
   },
   "keywords": [
     "vigilantex",
@@ -17,6 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
     "@xenova/transformers": "^2.15.1",
     "axios": "^1.6.7",
     "cors": "^2.8.5",
@@ -24,6 +31,7 @@
     "express": "^4.18.3",
     "express-rate-limit": "^7.5.0",
     "express-slow-down": "^2.0.3",
+    "openai": "^4.89.0",
     "puppeteer": "^22.4.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"

@@ -1,5 +1,5 @@
 const companyService = require('../../services/companyService');
-const contentGenerationService = require('../../services/contentGenerationService');
+const contentGenerationService = require('../../services/enhancedContentGenerationService');
 
 /**
  * Controller for LinkedIn company analysis

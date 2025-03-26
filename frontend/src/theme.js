@@ -5,6 +5,7 @@ const colors = {
   brand: {
     primary: '#7B68EE', // ClickUp's main purple color
     secondary: '#8E84FF', // Light purple for hover states
+    primaryLight: '#EAE6FF', // Very light purple for backgrounds
     accent: '#FF5722', // Accent color for highlights
     success: '#4DB76A', // Green for success states
     warning: '#FFB300', // Yellow/amber for warnings
@@ -25,6 +26,11 @@ const colors = {
       light: '#FFFFFF',
       dark: '#363639'
     }
+  },
+  linkedin: {
+    100: '#E8F4F9',
+    500: '#0077B5',
+    900: '#004471'
   },
   gray: {
     50: '#F7FAFC',

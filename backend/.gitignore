@@ -1,4 +1,23 @@
+# OS files
 .DS_Store
+
+# Environment variables
 .env
+.env.*
+*.env
+
+# Python compiled files
 *.pyc
+
+# Node modules
 node_modules/
+
+# Application specific directories
+training/
+logs/
+
+# Generated files and sensitive data
+*_result.json
+linkedin_cookies.json
+*_cookies.json
+

@@ -48,7 +48,7 @@ const useStore = create((set, get) => ({
   // Profile Actions
   setProfileUrl: (url) => set({ profileUrl: url }),
   
-  analyzeProfile: async () => {
+  analyzeProfile: async (additionalContext = '', modelOptions = {}) => {
     const { profileUrl, outputFormat } = get();
     if (!profileUrl) return;
     
@@ -59,50 +59,66 @@ const useStore = create((set, get) => ({
     });
     
     try {
-      // Simulate loading stages
+      // Process in stages to show visualization
       setTimeout(() => {
         set({ processingStage: 'analyzing' });
         
         setTimeout(() => {
           set({ processingStage: 'generating' });
           
-          apiService.analyzeProfile(profileUrl, outputFormat)
-            .then(response => {
-              if (response.status === 'success') {
-                // Save to prospects list if it's a new prospect
-                const newProspect = {
-                  id: Date.now(),
-                  name: response.data.profileData.name,
-                  title: response.data.profileData.title,
-                  company: response.data.profileData.company,
-                  url: profileUrl,
-                  createdAt: new Date().toISOString(),
-                  lastAnalyzed: new Date().toISOString(),
-                };
-                
-                set((state) => {
-                  // Only add if not already in list
-                  const exists = state.prospects.some(p => p.url === profileUrl);
-                  return {
-                    profileData: response.data.profileData,
-                    profileContent: response.data.content,
-                    profileLoading: false,
-                    processingStage: 'complete',
-                    prospects: exists ? state.prospects : [...state.prospects, newProspect]
+          try {
+            console.log("Starting profile analysis with URL:", profileUrl);
+            apiService.analyzeProfile(profileUrl, outputFormat, additionalContext, modelOptions)
+              .then(response => {
+                if (response.status === 'success') {
+                  console.log("Successful profile analysis:", response);
+                  // Save to prospects list if it's a new prospect
+                  const newProspect = {
+                    id: Date.now(),
+                    name: response.data.profileData.name,
+                    title: response.data.profileData.title,
+                    company: response.data.profileData.company,
+                    url: profileUrl,
+                    createdAt: new Date().toISOString(),
+                    lastAnalyzed: new Date().toISOString(),
                   };
+                  
+                  set((state) => {
+                    // Only add if not already in list
+                    const exists = state.prospects.some(p => p.url === profileUrl);
+                    return {
+                      profileData: {
+                        ...response.data.profileData,
+                        metadata: response.data.metadata || null
+                      },
+                      profileContent: response.data.content,
+                      profileLoading: false,
+                      processingStage: 'complete',
+                      prospects: exists ? state.prospects : [...state.prospects, newProspect]
+                    };
+                  });
+                } else {
+                  console.error("Failed profile analysis response:", response);
+                  throw new Error(response.message || 'Failed to analyze profile');
+                }
+              })
+              .catch(error => {
+                console.error("Profile analysis error:", error);
+                set({ 
+                  profileError: error.message || 'An error occurred during profile analysis',
+                  profileLoading: false,
+                  processingStage: 'idle'
                 });
-              } else {
-                throw new Error(response.message || 'Failed to analyze profile');
-              }
-            })
-            .catch(error => {
-              set({ 
-                profileError: error.message || 'An error occurred during profile analysis',
-                profileLoading: false,
-                processingStage: 'idle'
               });
+          } catch (outerError) {
+            console.error("Outer try-catch error:", outerError);
+            set({ 
+              profileError: outerError.message || 'An unexpected error occurred',
+              profileLoading: false,
+              processingStage: 'idle'
             });
-        }, 1000);
+          }
+        }, 1500);
       }, 1000);
       
     } catch (error) {

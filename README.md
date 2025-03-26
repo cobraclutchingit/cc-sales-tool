@@ -29,17 +29,48 @@ This guide will help you set up and run the VigilantEx Sales Automation App on y
    npm install
    ```
 
-4. Configure LinkedIn credentials:
+4. Configure credentials:
    ```
    cd backend
    cp .env.example .env
    ```
-   Edit the `.env` file to add your LinkedIn email and password:
+   
+   You can run the setup script to configure your LLM API keys:
    ```
+   ./setup-llm.sh
+   ```
+   
+   Or using npm:
+   ```
+   npm run setup:llm
+   ```
+   
+   Or manually edit the `.env` file to add your credentials:
+   ```
+   # LinkedIn credentials (optional)
    LINKEDIN_EMAIL=your-linkedin-email@example.com
    LINKEDIN_PASSWORD=your-linkedin-password
+   
+   # OpenAI configuration
+   OPENAI_API_KEY=your-openai-api-key
+   OPENAI_MODEL=gpt-4o-mini  # Options: gpt-3.5-turbo, gpt-4o, gpt-4o-mini, o1-mini, o3-mini
+   
+   # Anthropic (Claude) configuration
+   ANTHROPIC_API_KEY=your-anthropic-api-key
+   ANTHROPIC_MODEL=claude-3-sonnet-20240307  # Optional: defaults to claude-3-sonnet-20240307 if not specified
    ```
-   These credentials are used for accessing LinkedIn profiles and companies. Without valid credentials, the application will use mock data instead.
+   
+   These credentials are used for accessing LinkedIn profiles and companies, and for AI-powered content generation. At least one LLM API key (OpenAI or Anthropic) is recommended for best results, but the application will use fallback mechanisms if none are provided.
+   
+   After setting up your API keys, you can test them with:
+   ```
+   npm run test:api
+   ```
+   
+   If you encounter API key issues, use the diagnostic tool:
+   ```
+   npm run test:llm
+   ```
 
 ## Running the Application
 
@@ -79,9 +110,38 @@ This guide will help you set up and run the VigilantEx Sales Automation App on y
 - Generates appropriate response content based on the analysis
 - Tailors responses to address specific concerns and questions
 
+### 4. Warm Follow-up Emails
+- Generate personalized follow-up emails after phone calls with prospects
+- Include details from the conversation for a more personal touch
+- Address specific concerns raised during the call
+- Confirm next steps and scheduled demos
+- Perfect for maintaining momentum after initial contact
+
 ## AI Text Generation
 
-The application uses Transformers.js with the distilgpt2 model to generate personalized sales content. The model is downloaded automatically on first use and cached for subsequent runs. If the AI model fails to load or generate content, the application will fall back to template-based content generation.
+The application features a multi-level AI content generation system:
+
+1. **Multi-LLM Integration**: The application can use both Claude (Anthropic) and OpenAI models:
+   - **Claude (Primary for long-form content)**: Used for warm follow-ups, personalized messages, and detailed company outreach
+   - **OpenAI (Primary for structured analysis)**: Used for message analysis, topic extraction, and short responses
+   - Modern mini models supported (gpt-4o-mini, o1-mini, o3-mini)
+   - Model selection is automatic based on the task requirements
+
+2. **Transformers.js (Secondary Fallback)**: If cloud LLMs are unavailable or encounter errors, the application falls back to a local Transformers.js implementation using the distilgpt2 model. This model is downloaded automatically on first use and cached for subsequent runs.
+
+3. **Template-Based (Final Fallback)**: If both cloud and local AI methods fail, the application will use template-based content generation with role-specific personalization.
+
+This tiered approach ensures robust content generation even when API services are unavailable.
+
+You can run the enhanced LLM integration test to see a side-by-side comparison:
+```
+npm run test:content
+```
+
+And to migrate to the enhanced LLM service if you've been using the original service:
+```
+node utils/migrateToEnhancedLLM.js
+```
 
 ## LinkedIn Data Extraction
 
@@ -99,7 +159,13 @@ The application uses Puppeteer to extract data from LinkedIn profiles and compan
 
 - Frontend: React, ThreeJS (via react-three-fiber), TailwindCSS, Chakra UI
 - Backend: Node.js, Express
-- AI Text Generation: Transformers.js (distilgpt2 model)
+- AI Text Generation: 
+  - Primary: Multi-LLM Integration
+    - Claude API (Anthropic) for long-form, nuanced content
+    - OpenAI API (GPT models) for structured analysis and short content
+  - Secondary: Transformers.js (distilgpt2 model)
+  - Fallback: Template-based generation
+- LLM Caching: In-memory cache with TTL expiration for cost savings
 - Data Extraction: Puppeteer for LinkedIn scraping
 - State Management: Zustand (frontend)
 - 3D Visualizations: Three.js with react-three-fiber
