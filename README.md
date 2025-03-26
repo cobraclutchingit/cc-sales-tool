@@ -1,4 +1,4 @@
-# VigilantEx Sales Automation App - Installation and Usage Guide
+# Sales Automation App - Installation and Usage Guide
 
 This guide will help you set up and run the VigilantEx Sales Automation App on your MacBook Pro M1.
 
